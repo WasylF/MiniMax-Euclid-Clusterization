@@ -24,9 +24,11 @@ private:
 
     dbl x,y,z,v;
 
+public:
     Point(dbl x1, dbl y1, dbl z1, dbl v1) : x(x1), y(y1), z(z1), v(v1) { }
 
-public:
+    Point() : x(0), y(0), z(0), v(0) { }
+
     dbl dist(Point &p2)
     {
         dbl d= 0;
@@ -37,7 +39,6 @@ public:
         d= sqrt(d);
         return d;
     }
-
 
     friend ostream& operator<<(ostream& out, Point &p)
     {
@@ -54,20 +55,71 @@ public:
 };
 
 const int MaxN= 1000;
+const dbl alpha= 0.7;
 dbl claster[MaxN+10];
 Point p[MaxN+10];
+double sumDist= 0;
 
-int main()
+int getClosestCenter(int curPoint, set<int> &centres)
 {
-
-int n= 0;
+    dbl dist= INFINITY;
+    int ans= 0;
+    for (int center : centres)
     {
-        int i= 0;
-        while (cin>>p[++i]);
-        n= i;
+        dbl tmp= p[curPoint].dist( p[center] );
+        if (tmp < dist)
+        {
+            dist= tmp;
+            ans= center;
+        }
     }
 
+    return ans;
+}
+
+
+dbl getMinDist(int curPoint, set<int> &centres)
+{
+        return p[curPoint].dist(p [getClosestCenter(curPoint, centres)] );
+}
+
+
+void addCenter(set<int> &centres, int newCenter)
+{
+    for (int center : centres)
+        sumDist+= p[newCenter].dist( p[center] );
+
+    centres.insert(newCenter);
+
+    claster[newCenter]= centres.size();
+}
+
+
+dbl getAverageDist(set<int> &centres)
+{
+    dbl n= centres.size();
+    n= n*(n-1)/2;
+
+    return sumDist / n;
+}
+
+
+int read()
+{
+    ifstream in("input.txt");
+
+    int i= 0;
+    while (in>>p[++i]);
+
+    return i;
+}
+
+set<int> getCentres(int n)
+{
     memset(claster, 0, sizeof(claster));
+    set<int> centres;
+    centres.clear();
+    centres.insert(1);
     claster[1]= 1;
 
     {
@@ -79,8 +131,52 @@ int n= 0;
             if (tmp>d) j= i;
         }
         claster[j]= 2;
+        centres.insert(j);
+        sumDist= d;
     }
 
+    while (1)
+    {
+        dbl maxDist= 0;
+        int j= 0;
+
+        for (int i= 1; i<=n; i++)
+            if (claster[i]==0)
+        {
+            dbl d= getMinDist(i, centres);
+            if (d>maxDist)
+            {
+                maxDist= d;
+                j= i;
+            }
+        }
+
+        if (getAverageDist(centres) * alpha < maxDist)
+            addCenter(centres,j);
+        else break;
+
+    }
+
+    return centres;
+}
+
+void getClasters(int n, set<int> centres)
+{
+    for (int i= 1; i<=n; i++)
+        if (claster[i]==0)
+    {
+        claster[i]= getClosestCenter(i, centres);
+    }
+}
+
+
+int main()
+{
+    int n= read();
+
+    set<int> centres= getCentres(n);
+
+    cout<<"Number of clasters: "<<centres.size()<<endl;
 
     return 0;
 }
