@@ -53,8 +53,34 @@ public:
 
 };
 
+const int MaxN= 1000;
+dbl claster[MaxN+10];
+Point p[MaxN+10];
+
 int main()
 {
+
+int n= 0;
+    {
+        int i= 0;
+        while (cin>>p[++i]);
+        n= i;
+    }
+
+    memset(claster, 0, sizeof(claster));
+    claster[1]= 1;
+
+    {
+        int j= 1;
+        dbl d= 0;
+        for (int i= 2; i<=n; i++)
+        {
+            dbl tmp= p[1].dist(p[i]);
+            if (tmp>d) j= i;
+        }
+        claster[j]= 2;
+    }
+
 
     return 0;
 }
