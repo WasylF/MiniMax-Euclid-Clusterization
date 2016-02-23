@@ -110,8 +110,9 @@ int read()
 
     int i= 0;
     while (in>>p[++i]);
+    in.close();
 
-    return i;
+    return i-1;
 }
 
 set<int> getCentres(int n)
