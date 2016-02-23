@@ -55,7 +55,7 @@ public:
 };
 
 const int MaxN= 1000;
-const dbl alpha= 0.7;
+const dbl alpha= 0.75;
 int claster[MaxN+10];
 Point p[MaxN+10];
 double sumDist= 0;
@@ -115,26 +115,44 @@ int read()
     return i-1;
 }
 
+int getFarthestPoint(int n, int curPoint)
+{
+    int j= 1;
+    dbl d= 0;
+    for (int i= 1; i<=n; i++)
+    {
+        dbl tmp= p[curPoint].dist(p[i]);
+        if (tmp>d) j= i;
+    }
+
+    return j;
+}
+
+set<int> getFirstCentres(int n)
+{
+    set<int> centres;
+    centres.clear();
+
+    int a= getFarthestPoint(n, 1);
+    int b= getFarthestPoint(n, a);
+    for (int i= 1; i<=10; i++)
+    {
+        a= getFarthestPoint(n, b);
+        b= getFarthestPoint(n, a);
+    }
+
+    claster[a]= 1;
+    claster[b]= 2;
+    centres.insert(a);
+    centres.insert(b);
+
+    return centres;
+}
+
 set<int> getCentres(int n)
 {
     memset(claster, 0, sizeof(claster));
-    set<int> centres;
-    centres.clear();
-    centres.insert(1);
-    claster[1]= 1;
-
-    {
-        int j= 1;
-        dbl d= 0;
-        for (int i= 2; i<=n; i++)
-        {
-            dbl tmp= p[1].dist(p[i]);
-            if (tmp>d) j= i;
-        }
-        claster[j]= 2;
-        centres.insert(j);
-        sumDist= d;
-    }
+    set<int> centres= getFirstCentres(n);
 
     while (1)
     {
@@ -174,9 +192,7 @@ void print(int n, set<int> centres)
 
     int m= centres.size();
     cout<<"Number of clasters: "<< m << endl << endl;
-    for (int i= 1; i<=n; i++)
-        cout<<claster[i]<<" ";
-    cout<<endl<<endl;
+
     vi clasters[m+5];
     for (int i= 1; i<=n; i++)
         clasters[ claster[i] - 1 ].pb(i);
