@@ -56,13 +56,13 @@ public:
 
 const int MaxN= 1000;
 const dbl alpha= 0.7;
-dbl claster[MaxN+10];
+int claster[MaxN+10];
 Point p[MaxN+10];
 double sumDist= 0;
 
 int getClosestCenter(int curPoint, set<int> &centres)
 {
-    dbl dist= INFINITY;
+    dbl dist= 1e60;
     int ans= 0;
     for (int center : centres)
     {
@@ -164,11 +164,34 @@ void getClasters(int n, set<int> centres)
 {
     for (int i= 1; i<=n; i++)
         if (claster[i]==0)
-    {
-        claster[i]= getClosestCenter(i, centres);
-    }
+            claster[i]= claster[ getClosestCenter(i, centres) ];
 }
 
+void print(int n, set<int> centres)
+{
+    freopen("output.txt","w",stdout);
+
+    int m= centres.size();
+    cout<<"Number of clasters: "<< m << endl << endl;
+    for (int i= 1; i<=n; i++)
+        cout<<claster[i]<<" ";
+    cout<<endl<<endl;
+    vi clasters[m+5];
+    for (int i= 1; i<=n; i++)
+        clasters[ claster[i] - 1 ].pb(i);
+
+    {
+        int i= 0;
+        for (int center : centres)
+        {
+            cout<<"Claster "<<++i<<":"<<endl;
+            cout<<"center : "<<p[center]<<endl;
+            for (int j : clasters[claster[center]-1])
+                cout<<p[j]<<endl;
+            cout<<endl;
+        }
+    }
+}
 
 int main()
 {
@@ -176,7 +199,9 @@ int main()
 
     set<int> centres= getCentres(n);
 
-    cout<<"Number of clasters: "<<centres.size()<<endl;
+    getClasters(n, centres);
+
+    print(n, centres);
 
     return 0;
 }
